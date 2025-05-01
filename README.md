@@ -32,7 +32,7 @@ This web application demonstrates linear regression visualization and prediction
 
 1. Clone this repository:
    ```
-   git clone https://github.com/YOUR-USERNAME/linear-regression.git
+   git clone https://github.com/venugopal-adep/linear-regression-demo-app.git
    cd linear-regression
    ```
 
