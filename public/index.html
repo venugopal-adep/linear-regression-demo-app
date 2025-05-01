@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression Demo</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Linear Regression Visualization</h1>
+        <h3 class="developer-credit">Developed by : Venugopal Adep</h3>
+        <div class="description">
+            <p>This application demonstrates linear regression. Add points by clicking on the canvas, then fit a line to the data.</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="visualization">Visualization</button>
+            <button class="tab-btn" data-tab="explanation">Mathematical Intuition</button>
+            <button class="tab-btn" data-tab="step-by-step">Step-by-Step</button>
+        </div>
+
+        <div id="visualization" class="tab-content active">
+            <div class="model-info">
+                <div>Equation: y = <span id="slope">--</span>x + <span id="intercept">--</span></div>
+                <div>R² score: <span id="r-squared">--</span></div>
+                <div>MSE: <span id="mse">--</span></div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="regressionChart"></canvas>
+            </div>
+            
+            <div class="controls">
+                <button id="fit-line-btn">Fit Line</button>
+                <button id="reset-btn">Reset Data</button>
+                <button id="load-sample-btn">Load Sample Data</button>
+                <button id="predict-btn">Make Prediction</button>
+                <input type="number" id="predict-input" placeholder="Enter x value">
+                <div id="prediction-result">Prediction: <span id="prediction-value">--</span></div>
+            </div>
+        </div>
+
+        <div id="explanation" class="tab-content">
+            <div class="math-content">
+                <h2>The Math Behind Linear Regression</h2>
+                
+                <div class="math-section">
+                    <h3>1. The Linear Model</h3>
+                    <p>Linear regression models the relationship between a dependent variable \(y\) and one or more independent variables \(x\) using a linear equation:</p>
+                    <div class="equation">\[y = mx + b\]</div>
+                    <p>Where:</p>
+                    <ul>
+                        <li>\(m\) is the slope (the change in \(y\) for a unit change in \(x\))</li>
+                        <li>\(b\) is the y-intercept (the value of \(y\) when \(x = 0\))</li>
+                    </ul>
+                </div>
+                
+                <div class="math-section">
+                    <h3>2. Finding the Best Fit Line - Analytical Solution</h3>
+                    <p>In this application, we use the <strong>Ordinary Least Squares (OLS)</strong> method to find the optimal values for slope and y-intercept directly, rather than using an iterative approach like gradient descent.</p>
+                    
+                    <h4>The Cost Function</h4>
+                    <p>We want to minimize the sum of squared differences between the observed values and the values predicted by the line:</p>
+                    <div class="equation">\[J(m,b) = \sum_{i=1}^{n} (y_i - (mx_i + b))^2\]</div>
+                    <p>This is called the <strong>Sum of Squared Errors (SSE)</strong> or <strong>Residual Sum of Squares (RSS)</strong>.</p>
+                    
+                    <h4>Deriving the OLS Formulas</h4>
+                    <p>To find the values of \(m\) and \(b\) that minimize the cost function, we take the partial derivatives with respect to each parameter and set them equal to zero:</p>
+                    
+                    <p><strong>Step 1:</strong> Find the partial derivative with respect to \(b\):</p>
+                    <div class="equation">\[\frac{\partial J}{\partial b} = -2\sum_{i=1}^{n} (y_i - (mx_i + b)) = 0\]</div>
+                    
+                    <p><strong>Step 2:</strong> Find the partial derivative with respect to \(m\):</p>
+                    <div class="equation">\[\frac{\partial J}{\partial m} = -2\sum_{i=1}^{n} x_i(y_i - (mx_i + b)) = 0\]</div>
+                    
+                    <p><strong>Step 3:</strong> Solving for \(b\) from the first equation:</p>
+                    <div class="equation">\[\sum_{i=1}^{n} (y_i - mx_i - b) = 0\]</div>
+                    <div class="equation">\[\sum_{i=1}^{n} y_i - m\sum_{i=1}^{n} x_i - nb = 0\]</div>
+                    <div class="equation">\[b = \frac{\sum_{i=1}^{n} y_i - m\sum_{i=1}^{n} x_i}{n} = \bar{y} - m\bar{x}\]</div>
+                    <p>Where \(\bar{x}\) and \(\bar{y}\) are the means of the \(x\) and \(y\) values respectively.</p>
+                    
+                    <p><strong>Step 4:</strong> Substituting this expression for \(b\) into the second equation and solving for \(m\):</p>
+                    <div class="equation">\[\sum_{i=1}^{n} x_i(y_i - mx_i - (\bar{y} - m\bar{x})) = 0\]</div>
+                    <div class="equation">\[\sum_{i=1}^{n} x_i y_i - m\sum_{i=1}^{n} x_i^2 - \bar{y}\sum_{i=1}^{n} x_i + m\bar{x}\sum_{i=1}^{n} x_i = 0\]</div>
+                    
+                    <p>Noting that \(\sum_{i=1}^{n} x_i = n\bar{x}\), we can simplify:</p>
+                    <div class="equation">\[\sum_{i=1}^{n} x_i y_i - m\sum_{i=1}^{n} x_i^2 - n\bar{x}\bar{y} + mn\bar{x}^2 = 0\]</div>
+                    
+                    <p>Rearranging to solve for \(m\):</p>
+                    <div class="equation">\[m = \frac{\sum_{i=1}^{n} x_i y_i - n\bar{x}\bar{y}}{\sum_{i=1}^{n} x_i^2 - n\bar{x}^2}\]</div>
+                    
+                    <p>This can be rewritten as:</p>
+                    <div class="equation">\[m = \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n} (x_i - \bar{x})^2}\]</div>
+                    
+                    <p>Or in the form we implement in our code:</p>
+                    <div class="equation">\[m = \frac{n\sum_{i=1}^{n} x_i y_i - \sum_{i=1}^{n} x_i \sum_{i=1}^{n} y_i}{n\sum_{i=1}^{n} x_i^2 - (\sum_{i=1}^{n} x_i)^2}\]</div>
+                    
+                    <h4>Key Difference from Gradient Descent</h4>
+                    <p>Unlike gradient descent, which iteratively updates the parameters to converge to the minimum, OLS provides a direct analytical solution. For simple linear regression, OLS is computationally efficient because:</p>
+                    <ul>
+                        <li>It requires a single calculation rather than multiple iterations</li>
+                        <li>It guarantees the global minimum of the cost function</li>
+                        <li>It does not require selecting a learning rate or other hyperparameters</li>
+                    </ul>
+                    <p>However, for more complex models or very large datasets, iterative methods like gradient descent can be more practical.</p>
+                </div>
+                
+                <div class="math-section">
+                    <h3>3. Evaluating the Model</h3>
+                    
+                    <h4>R² Score (Coefficient of Determination)</h4>
+                    <p>R² measures the proportion of variance in the dependent variable that is predictable from the independent variable:</p>
+                    <div class="equation">\[R^2 = 1 - \frac{SS_{res}}{SS_{tot}} = 1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}\]</div>
+                    <p>Where:</p>
+                    <ul>
+                        <li>\(\hat{y}_i\) is the predicted value for \(y_i\)</li>
+                        <li>\(\bar{y}\) is the mean of all \(y\) values</li>
+                    </ul>
+                    <p>R² ranges from 0 to 1, with higher values indicating better fit.</p>
+                    
+                    <h4>Mean Squared Error (MSE)</h4>
+                    <p>MSE measures the average of the squares of the errors:</p>
+                    <div class="equation">\[MSE = \frac{1}{n}\sum_{i=1}^{n} (y_i - \hat{y}_i)^2\]</div>
+                    <p>Lower MSE values indicate better fit.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="step-by-step" class="tab-content">
+            <div class="steps-container">
+                <h2>Step-by-Step Calculation</h2>
+                <div id="step-explanation">
+                    <p>This section will show a detailed calculation when you fit a regression line to your data.</p>
+                    <p>Please add at least two data points and click "Fit Line" to see the step-by-step process.</p>
+                </div>
+                <div id="calculation-steps" class="hidden">
+                    <div class="step">
+                        <h3>Step 1: Data Collection</h3>
+                        <div id="data-table-container">
+                            <table id="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>x</th>
+                                        <th>y</th>
+                                        <th>x²</th>
+                                        <th>xy</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-table-body">
+                                </tbody>
+                                <tfoot id="data-table-foot">
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <h3>Step 2: Calculate Means</h3>
+                        <div id="means-calculation"></div>
+                    </div>
+                    <div class="step">
+                        <h3>Step 3: Calculate Slope</h3>
+                        <div id="slope-calculation"></div>
+                    </div>
+                    <div class="step">
+                        <h3>Step 4: Calculate Y-Intercept</h3>
+                        <div id="intercept-calculation"></div>
+                    </div>
+                    <div class="step">
+                        <h3>Step 5: Calculate R² and MSE</h3>
+                        <div id="r-squared-calculation"></div>
+                    </div>
+                    <div class="step">
+                        <h3>Final Model</h3>
+                        <div id="final-model"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ul>
+                <li>Click on the chart to add data points</li>
+                <li>Click "Fit Line" to perform linear regression</li>
+                <li>Enter an x-value and click "Make Prediction" to predict a y-value</li>
+                <li>Click "Reset Data" to start over</li>
+                <li>Click "Load Sample Data" to use a pre-defined dataset</li>
+                <li>Explore the "Mathematical Intuition" tab to understand the theory</li>
+                <li>View the "Step-by-Step" tab to see detailed calculations</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="js/linear-regression.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
